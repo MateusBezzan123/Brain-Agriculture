@@ -13,4 +13,9 @@ router.get('/fazendas', produtorController.getTotalFazendas);
 router.get('/hectares', produtorController.getTotalHectares);
 
 
+router.post('/cultura', produtorController.cadastrarCultura);
+router.get('/fazendasPorCultura', produtorController.getFazendasPorCultura);
+router.get('/usoDeSolo', produtorController.getUsoDeSolo);
+
+
 module.exports = router;

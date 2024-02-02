@@ -161,55 +161,116 @@ exports.deleteProdutor = async (req, res) => {
 
 exports.getFazendasPorEstado = async (req, res) => {
     try {
-      const fazendasPorEstado = await prisma.produtor.groupBy({
-        by: ['estado'], 
-        _count: true, 
-      });
-  
-      if (fazendasPorEstado.length === 0) {
-        return res.status(404).json({ message: 'Nenhuma fazenda encontrada por estado.' });
-      }
+        const fazendasPorEstado = await prisma.produtor.groupBy({
+            by: ['estado'],
+            _count: true,
+        });
 
-      const resultado = fazendasPorEstado.map(estado => ({
-        estado: estado.estado,
-        numeroDeFazendas: estado._count
-      }));
+        if (fazendasPorEstado.length === 0) {
+            return res.status(404).json({ message: 'Nenhuma fazenda encontrada por estado.' });
+        }
 
-      res.status(200).json(resultado);
+        const resultado = fazendasPorEstado.map(estado => ({
+            estado: estado.estado,
+            numeroDeFazendas: estado._count
+        }));
+
+        res.status(200).json(resultado);
     } catch (error) {
-      console.error("Erro ao buscar fazendas por estado: ", error);
-      res.status(500).send("Erro interno do servidor");
+        console.error("Erro ao buscar fazendas por estado: ", error);
+        res.status(500).send("Erro interno do servidor");
     }
-  };
-  
+};
 
-  exports.getTotalHectares = async (req, res) => {
+
+exports.getTotalHectares = async (req, res) => {
     try {
-      const totalHectares = await prisma.produtor.aggregate({
-        _sum: {
-          areaTotalHectares: true
+        const totalHectares = await prisma.produtor.aggregate({
+            _sum: {
+                areaTotalHectares: true
+            },
+        });
+
+        if (!totalHectares._sum.areaTotalHectares) {
+            return res.status(404).json({ message: 'Não há fazendas cadastradas.' });
+        }
+
+        res.status(200).json({ totalHectares: totalHectares._sum.areaTotalHectares });
+    } catch (error) {
+        console.error("Erro ao buscar o total de hectares: ", error);
+        res.status(500).send("Erro interno do servidor");
+    }
+};
+
+
+exports.getTotalFazendas = async (req, res) => {
+    try {
+        const totalFazendas = await prisma.produtor.count();
+        res.status(200).json({ totalFazendas });
+    } catch (error) {
+
+        console.error("Erro ao buscar o total de fazendas: ", error);
+        res.status(500).send("Erro interno do servidor");
+    }
+};
+
+exports.cadastrarCultura = async (req, res) => {
+    const { nome, produtorId } = req.body;
+
+    try {
+        const novaCultura = await prisma.cultura.create({
+            data: {
+                nome: nome,
+                produtores: {
+                    create: {
+                        produtor: {
+                            connect: { id: produtorId }
+                        }
+                    }
+                }
+            }
+        });
+
+        res.status(201).json(novaCultura);
+    } catch (error) {
+        console.error('Erro ao cadastrar cultura:', error);
+        res.status(500).send(error.message);
+    }
+};
+exports.getFazendasPorCultura = async (req, res) => {
+    try {
+      const agregacaoCulturas = await prisma.produtorCultura.groupBy({
+        by: ['culturaId'],
+        _count: {
+          _all: true,
         },
       });
   
-      if (!totalHectares._sum.areaTotalHectares) {
-        return res.status(404).json({ message: 'Não há fazendas cadastradas.' });
-      }
-  
-      res.status(200).json({ totalHectares: totalHectares._sum.areaTotalHectares });
+      res.status(200).json(agregacaoCulturas);
     } catch (error) {
-      console.error("Erro ao buscar o total de hectares: ", error);
+      console.error("Erro ao buscar agregação por cultura:", error);
       res.status(500).send("Erro interno do servidor");
     }
   };
   
+  
 
-  exports.getTotalFazendas = async (req, res) => {
+  
+  exports.getUsoDeSolo = async (req, res) => {
     try {
-      const totalFazendas = await prisma.produtor.count();
-      res.status(200).json({ totalFazendas });
+      const totalAreas = await prisma.produtor.aggregate({
+        _sum: {
+          areaAgricultavelHectares: true,
+          areaVegetacaoHectares: true,
+        },
+      });
+  
+      res.status(200).json({
+        areaAgricultavelTotal: totalAreas._sum.areaAgricultavelHectares,
+        areaVegetacaoTotal: totalAreas._sum.areaVegetacaoHectares,
+      });
     } catch (error) {
-
-      console.error("Erro ao buscar o total de fazendas: ", error);
+      console.error("Erro ao calcular o uso de solo:", error);
       res.status(500).send("Erro interno do servidor");
     }
   };
