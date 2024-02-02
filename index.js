@@ -1,15 +1,9 @@
 const express = require('express');
+const produtorRoutes = require('./src/routes/produtorRoutes')
 const app = express();
 
-
-const apiRouter = express.Router();
-
-apiRouter.get('/', (req, res) => {
-  res.send('Resposta da API');
-});
-
-
-app.use('/api', apiRouter);
+app.use(express.json());
+app.use('/produtores', produtorRoutes);
 
 app.listen(3000, () => {
   console.log('Servidor iniciado na porta 3000');
