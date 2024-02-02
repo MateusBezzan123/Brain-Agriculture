@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Produtor {
+  id                     String          @id @default(uuid())
+  cpf_cnpj               String          @unique
+  nome                   String
+  nomeFazenda            String?
+  cidade                 String?
+  estado                 String?
+  areaTotalHectares      Float
+  areaAgricultavelHectares Float
+  areaVegetacaoHectares  Float
+  culturas               ProdutorCultura[]
+}
+
+model Cultura {
+  id           String          @id @default(uuid())
+  nome         String          @unique
+  produtores   ProdutorCultura[]
+}
+
+model ProdutorCultura {
+  produtor    Produtor @relation(fields: [produtorId], references: [id])
+  produtorId  String  
+  cultura     Cultura  @relation(fields: [culturaId], references: [id])
+  culturaId   String 
+
+  @@id([produtorId, culturaId])
+}
