@@ -3,6 +3,7 @@ const router = express.Router();
 const produtorController = require('../controllers/produtorController');
 
 router.post('/', produtorController.createProdutor);
-
+router.put('/:id', produtorController.updateProdutor);
+router.delete('/:id', produtorController.deleteProdutor);
 
 module.exports = router;
