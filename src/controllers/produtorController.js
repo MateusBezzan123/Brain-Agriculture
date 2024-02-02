@@ -182,3 +182,35 @@ exports.getFazendasPorEstado = async (req, res) => {
     }
   };
   
+
+  exports.getTotalHectares = async (req, res) => {
+    try {
+      const totalHectares = await prisma.produtor.aggregate({
+        _sum: {
+          areaTotalHectares: true
+        },
+      });
+  
+      if (!totalHectares._sum.areaTotalHectares) {
+        return res.status(404).json({ message: 'Não há fazendas cadastradas.' });
+      }
+  
+      res.status(200).json({ totalHectares: totalHectares._sum.areaTotalHectares });
+    } catch (error) {
+      console.error("Erro ao buscar o total de hectares: ", error);
+      res.status(500).send("Erro interno do servidor");
+    }
+  };
+  
+
+  exports.getTotalFazendas = async (req, res) => {
+    try {
+      const totalFazendas = await prisma.produtor.count();
+      res.status(200).json({ totalFazendas });
+    } catch (error) {
+
+      console.error("Erro ao buscar o total de fazendas: ", error);
+      res.status(500).send("Erro interno do servidor");
+    }
+  };
+  

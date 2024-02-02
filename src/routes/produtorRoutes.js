@@ -9,5 +9,8 @@ router.put('/produtores/:id', produtorController.updateProdutor);
 router.delete('/produtores/:id', produtorController.deleteProdutor);
 
 router.get('/total', produtorController.getFazendasPorEstado);
+router.get('/fazendas', produtorController.getTotalFazendas);
+router.get('/hectares', produtorController.getTotalHectares);
+
 
 module.exports = router;
