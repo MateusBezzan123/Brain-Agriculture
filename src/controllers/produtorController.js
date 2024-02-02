@@ -63,6 +63,33 @@ function validarCNPJ(cnpj) {
     return true;
 }
 
+exports.getAllProdutores = async (req, res) => {
+    try {
+        const produtores = await prisma.produtor.findMany();
+        res.status(200).json(produtores);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+};
+
+exports.getProdutorById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const produtor = await prisma.produtor.findUnique({
+            where: { id: id },
+        });
+
+        if (produtor) {
+            res.status(200).json(produtor);
+        } else {
+            res.status(404).send('Produtor não encontrado.');
+        }
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+};
+
 exports.createProdutor = async (req, res) => {
     const documento = req.body.cpf_cnpj;
     const isValidCPF = validarCPF(documento);
@@ -95,7 +122,6 @@ exports.createProdutor = async (req, res) => {
         res.status(500).send(error.message);
     }
 };
-
 
 exports.updateProdutor = async (req, res) => {
     const { id } = req.params;
