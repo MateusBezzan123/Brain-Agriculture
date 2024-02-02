@@ -8,4 +8,6 @@ router.post('/', produtorController.createProdutor);
 router.put('/:id', produtorController.updateProdutor);
 router.delete('/:id', produtorController.deleteProdutor);
 
+router.get('/totalFazendas', produtorController.getFazendasPorEstado);
+
 module.exports = router;

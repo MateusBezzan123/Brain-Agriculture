@@ -158,3 +158,20 @@ exports.deleteProdutor = async (req, res) => {
         res.status(500).send(error.message);
     }
 };
+
+exports.getFazendasPorEstado = async (req, res) => {
+    try {
+      const fazendasPorEstado = await prisma.produtor.groupBy({
+        by: ['estado'],
+        _count: {
+          estado: true,
+        },
+      });
+  
+      res.status(200).json(fazendasPorEstado);
+    } catch (error) {
+      console.error("Erro ao buscar fazendas por estado: ", error);
+      res.status(500).send("Erro interno do servidor");
+    }
+  };
+  
